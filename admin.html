@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4a0b0b">
+<title>LV666 Admin Panel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginView" class="login-view">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-icon"><i class="fas fa-shield-halved"></i></div>
+      <h1>LV666 Admin</h1>
+      <p>Authorized personnel only</p>
+    </div>
+    <form id="loginForm" autocomplete="on">
+      <div class="form-group">
+        <label for="loginEmail">Email Address</label>
+        <div class="input-icon">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="loginEmail" required autocomplete="email" placeholder="admin@lv666.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <div class="input-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Enter password">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+        <i class="fas fa-right-to-bracket"></i> Sign In
+      </button>
+      <div id="loginError" class="alert-error hidden"></div>
+    </form>
+    <div class="login-footer"><i class="fas fa-lock"></i> Secure Firebase Authentication</div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="appView" class="app-view hidden">
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+      <div>
+        <div class="brand-name">LV666</div>
+        <div class="brand-sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav id="sidebarNav" class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <i class="fas fa-circle-user"></i>
+        <div>
+          <div class="admin-label">Administrator</div>
+          <span id="adminEmail" class="admin-email"></span>
+        </div>
+      </div>
+      <button id="logoutBtn" class="btn-icon" title="Sign Out"><i class="fas fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menuToggle" class="btn-icon"><i class="fas fa-bars"></i></button>
+      <h2 id="pageTitle">Dashboard</h2>
+      <div class="topbar-actions">
+        <span class="badge badge-live"><i class="fas fa-circle"></i> Online</span>
+      </div>
+    </header>
+    <div id="mainContent" class="main-content"></div>
+  </main>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add Item</h3>
+      <button class="btn-icon" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM ===== -->
+<div id="confirmOverlay" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Confirm Action</h3></div>
+    <div class="modal-body"><p id="confirmMessage"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmYesBtn"><i class="fas fa-check"></i> Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

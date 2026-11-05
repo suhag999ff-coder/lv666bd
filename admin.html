@@ -2,114 +2,317 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#4a0b0b">
-<title>LV666 Admin Panel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LV666 — Admin Panel</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
-<div id="loginView" class="login-view">
-  <div class="login-card">
-    <div class="login-brand">
-      <div class="login-icon"><i class="fas fa-shield-halved"></i></div>
-      <h1>LV666 Admin</h1>
-      <p>Authorized personnel only</p>
+<!-- ═══ LOGIN PAGE ═══ -->
+<div id="loginPage" class="ad-login">
+  <div class="ad-login-card">
+    <div class="ad-login-logo">
+      <span class="ad-brand">LV<b>666</b></span>
     </div>
-    <form id="loginForm" autocomplete="on">
-      <div class="form-group">
-        <label for="loginEmail">Email Address</label>
-        <div class="input-icon">
-          <i class="fas fa-envelope"></i>
-          <input type="email" id="loginEmail" required autocomplete="email" placeholder="admin@lv666.com">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="loginPassword">Password</label>
-        <div class="input-icon">
-          <i class="fas fa-lock"></i>
-          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Enter password">
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-        <i class="fas fa-right-to-bracket"></i> Sign In
-      </button>
-      <div id="loginError" class="alert-error hidden"></div>
-    </form>
-    <div class="login-footer"><i class="fas fa-lock"></i> Secure Firebase Authentication</div>
+    <h2 class="ad-login-title">Admin Portal</h2>
+    <p class="ad-login-sub">Sign in to manage your platform</p>
+    <div class="ad-login-field">
+      <i class="fas fa-user-shield"></i>
+      <input type="text" id="adEmail" placeholder="Admin ID" autocomplete="username">
+    </div>
+    <div class="ad-login-field">
+      <i class="fas fa-lock"></i>
+      <input type="password" id="adPass" placeholder="Password" autocomplete="current-password" onkeyup="if(event.key==='Enter')adLogin()">
+      <i class="far fa-eye-slash ad-eye" onclick="adTogglePass()"></i>
+    </div>
+    <div id="adErr" class="ad-err hidden-el"></div>
+    <button class="ad-btn-primary" onclick="adLogin()">Sign In</button>
+    <p class="ad-login-foot"><i class="fas fa-shield-halved"></i> LV666 Secure Admin</p>
   </div>
 </div>
 
-<!-- ===== APP ===== -->
-<div id="appView" class="app-view hidden">
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
-      <div>
-        <div class="brand-name">LV666</div>
-        <div class="brand-sub">Admin Panel</div>
-      </div>
+<!-- ═══ MAIN PANEL ═══ -->
+<div id="mainApp" class="ad-app hidden-el">
+  <aside class="ad-sidebar" id="adSidebar">
+    <div class="ad-sb-head">
+      <span class="ad-brand">LV<b>666</b></span>
+      <i class="fas fa-xmark ad-sb-close" onclick="adToggleSidebar()"></i>
     </div>
-    <nav id="sidebarNav" class="sidebar-nav"></nav>
-    <div class="sidebar-footer">
-      <div class="admin-info">
-        <i class="fas fa-circle-user"></i>
-        <div>
-          <div class="admin-label">Administrator</div>
-          <span id="adminEmail" class="admin-email"></span>
-        </div>
+    <nav class="ad-nav">
+      <div class="ad-nav-item on" data-tab="dashboard" onclick="adTab('dashboard',this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>
+      <div class="ad-nav-item" data-tab="users" onclick="adTab('users',this)"><i class="fas fa-users"></i><span>Users</span></div>
+      <div class="ad-nav-item" data-tab="chat" onclick="adTab('chat',this)"><i class="fas fa-comments"></i><span>Live Chat</span><b class="ad-badge hidden-el" id="navChatBadge">0</b></div>
+      <div class="ad-nav-item" data-tab="deposits" onclick="adTab('deposits',this)"><i class="fas fa-arrow-down"></i><span>Deposits</span><b class="ad-badge hidden-el" id="navDepBadge">0</b></div>
+      <div class="ad-nav-item" data-tab="withdraws" onclick="adTab('withdraws',this)"><i class="fas fa-arrow-up"></i><span>Withdraws</span></div>
+      <div class="ad-nav-item" data-tab="games" onclick="adTab('games',this)"><i class="fas fa-gamepad"></i><span>Games</span></div>
+      <div class="ad-nav-item" data-tab="banners" onclick="adTab('banners',this)"><i class="fas fa-image"></i><span>Banners</span></div>
+      <div class="ad-nav-item" data-tab="notifications" onclick="adTab('notifications',this)"><i class="fas fa-bell"></i><span>Notifications</span></div>
+      <div class="ad-nav-item" data-tab="settings" onclick="adTab('settings',this)"><i class="fas fa-gear"></i><span>Settings</span></div>
+      <div class="ad-nav-item" data-tab="security" onclick="adTab('security',this)"><i class="fas fa-shield-halved"></i><span>Security</span></div>
+    </nav>
+    <div class="ad-sb-foot">
+      <div class="ad-admin-info">
+        <div class="ad-av">A</div>
+        <div><b>Admin</b><small><i class="fas fa-circle" style="font-size:6px;color:#22c55e"></i> Online</small></div>
       </div>
-      <button id="logoutBtn" class="btn-icon" title="Sign Out"><i class="fas fa-right-from-bracket"></i></button>
+      <i class="fas fa-right-from-bracket ad-logout" onclick="adLogout()" title="Logout"></i>
     </div>
   </aside>
-  <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <main class="main">
-    <header class="topbar">
-      <button id="menuToggle" class="btn-icon"><i class="fas fa-bars"></i></button>
-      <h2 id="pageTitle">Dashboard</h2>
-      <div class="topbar-actions">
-        <span class="badge badge-live"><i class="fas fa-circle"></i> Online</span>
+  <main class="ad-main">
+    <header class="ad-header">
+      <i class="fas fa-bars ad-menu-btn" onclick="adToggleSidebar()"></i>
+      <div class="ad-header-title">
+        <h1 id="adTitle">Dashboard</h1>
+        <p id="adSub">Platform overview</p>
       </div>
     </header>
-    <div id="mainContent" class="main-content"></div>
+    <div class="ad-body">
+
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard" class="ad-tab-content">
+        <div class="ad-stats">
+          <div class="ad-stat">
+            <div class="ad-stat-icon blue"><i class="fas fa-users"></i></div>
+            <div><small>Total Users</small><b id="stUsers">0</b></div>
+          </div>
+          <div class="ad-stat">
+            <div class="ad-stat-icon green"><i class="fas fa-wallet"></i></div>
+            <div><small>Total Balance</small><b id="stBalance">৳0</b></div>
+          </div>
+          <div class="ad-stat">
+            <div class="ad-stat-icon yellow"><i class="fas fa-clock"></i></div>
+            <div><small>Pending Deposit</small><b id="stPending">0</b></div>
+          </div>
+          <div class="ad-stat">
+            <div class="ad-stat-icon red"><i class="fas fa-comments"></i></div>
+            <div><small>Active Chats</small><b id="stChats">0</b></div>
+          </div>
+        </div>
+        <div class="ad-two-col">
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-user-plus" style="color:#3b82f6"></i> Recent Users</h3>
+            <div id="recentUsers" class="ad-recent-list"></div>
+          </div>
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-money-bill-trend-up" style="color:#22c55e"></i> Recent Deposits</h3>
+            <div id="recentDeposits" class="ad-recent-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div id="tab-users" class="ad-tab-content hidden-el">
+        <div class="ad-card">
+          <div class="ad-toolbar">
+            <input id="userSearch" placeholder="Search by phone or UID..." oninput="renderUsers()">
+            <select id="userFilter" onchange="renderUsers()">
+              <option value="all">All Users</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+            <button onclick="exportUsers()" class="ad-btn-ghost"><i class="fas fa-download"></i> Export CSV</button>
+          </div>
+          <div class="ad-table-wrap">
+            <table class="ad-table">
+              <thead>
+                <tr><th>User</th><th>Phone</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE CHAT -->
+      <div id="tab-chat" class="ad-tab-content hidden-el">
+        <div class="ad-chat-layout">
+          <div class="ad-chat-list" id="chatList">
+            <div class="ad-chat-empty">Select a conversation</div>
+          </div>
+          <div class="ad-chat-main">
+            <div class="ad-chat-header">
+              <div class="ad-av" id="chatHeaderAv">?</div>
+              <div><b id="chatHeaderName">Select a conversation</b><small id="chatHeaderPhone">—</small></div>
+            </div>
+            <div class="ad-chat-window" id="chatWindow"></div>
+            <div class="ad-chat-input">
+              <input id="adminChatInput" placeholder="Type a message..." onkeyup="if(event.key==='Enter')sendAdminMsg()">
+              <button onclick="sendAdminMsg()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPOSITS -->
+      <div id="tab-deposits" class="ad-tab-content hidden-el">
+        <div class="ad-card">
+          <div class="ad-tabs" id="depTabs">
+            <button class="on" onclick="setDepFilter('pending',this)">Pending</button>
+            <button onclick="setDepFilter('approved',this)">Approved</button>
+            <button onclick="setDepFilter('rejected',this)">Rejected</button>
+            <button onclick="setDepFilter('all',this)">All</button>
+          </div>
+          <div class="ad-table-wrap">
+            <table class="ad-table">
+              <thead><tr><th>Phone</th><th>Amount</th><th>Method</th><th>Status</th><th>Time</th><th>Actions</th></tr></thead>
+              <tbody id="depositsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- WITHDRAWS -->
+      <div id="tab-withdraws" class="ad-tab-content hidden-el">
+        <div class="ad-card">
+          <div class="ad-tabs" id="withTabs">
+            <button class="on" onclick="setWithFilter('pending',this)">Pending</button>
+            <button onclick="setWithFilter('approved',this)">Approved</button>
+            <button onclick="setWithFilter('rejected',this)">Rejected</button>
+            <button onclick="setWithFilter('all',this)">All</button>
+          </div>
+          <div class="ad-table-wrap">
+            <table class="ad-table">
+              <thead><tr><th>Phone</th><th>Amount</th><th>Number</th><th>Status</th><th>Time</th><th>Actions</th></tr></thead>
+              <tbody id="withdrawsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAMES -->
+      <div id="tab-games" class="ad-tab-content hidden-el">
+        <div class="ad-card">
+          <div class="ad-toolbar">
+            <h3 class="ad-card-title" style="margin:0"><i class="fas fa-gamepad"></i> Game Library</h3>
+            <button onclick="addGame()" class="ad-btn-primary"><i class="fas fa-plus"></i> Add Game</button>
+          </div>
+          <div id="gamesGrid" class="ad-games-grid"></div>
+        </div>
+      </div>
+
+      <!-- BANNERS -->
+      <div id="tab-banners" class="ad-tab-content hidden-el">
+        <div class="ad-card">
+          <div class="ad-toolbar">
+            <h3 class="ad-card-title" style="margin:0"><i class="fas fa-image"></i> Banners</h3>
+            <button onclick="addBanner()" class="ad-btn-primary"><i class="fas fa-plus"></i> Add Banner</button>
+          </div>
+          <div id="bannersGrid" class="ad-banners-grid"></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div id="tab-notifications" class="ad-tab-content hidden-el">
+        <div class="ad-two-col">
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-paper-plane"></i> Send Notification</h3>
+            <input id="notifTitle" class="ad-input" placeholder="Title">
+            <textarea id="notifBody" class="ad-input" rows="4" placeholder="Message body"></textarea>
+            <select id="notifTarget" class="ad-input">
+              <option value="all">All Users</option>
+              <option value="active">Active Users</option>
+              <option value="blocked">Blocked Users</option>
+            </select>
+            <button onclick="sendNotif()" class="ad-btn-primary" style="width:100%;margin-top:12px"><i class="fas fa-paper-plane"></i> Send to All</button>
+          </div>
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-list"></i> Sent History</h3>
+            <div id="notifHistory" class="ad-recent-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="tab-settings" class="ad-tab-content hidden-el">
+        <div class="ad-settings-grid">
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-coins" style="color:#eab308"></i> Payment Limits</h3>
+            <label class="ad-label">Min Deposit (৳)</label>
+            <input id="setMinDep" type="number" class="ad-input">
+            <label class="ad-label">Max Deposit (৳)</label>
+            <input id="setMaxDep" type="number" class="ad-input">
+            <label class="ad-label">Min Withdraw (৳)</label>
+            <input id="setMinWith" type="number" class="ad-input">
+            <label class="ad-label">Turnover Multiplier</label>
+            <input id="setTurnover" type="number" step="0.1" class="ad-input">
+            <label class="ad-label">Jackpot Number (৳)</label>
+            <input id="setJackpot" type="number" class="ad-input">
+          </div>
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-credit-card" style="color:#22c55e"></i> Payment Methods</h3>
+            <div class="ad-pm">
+              <div class="ad-pm-head"><b>bKash</b>
+                <label class="ad-switch"><input type="checkbox" id="setBkashOn"><span></span></label>
+              </div>
+              <input id="setBkashNum" placeholder="bKash Number" class="ad-input">
+            </div>
+            <div class="ad-pm">
+              <div class="ad-pm-head"><b>Nagad</b>
+                <label class="ad-switch"><input type="checkbox" id="setNagadOn"><span></span></label>
+              </div>
+              <input id="setNagadNum" placeholder="Nagad Number" class="ad-input">
+            </div>
+            <label class="ad-label" style="margin-top:14px">Deposit Bonus %</label>
+            <input id="setDepBonus" type="number" class="ad-input">
+          </div>
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-tools" style="color:#ef4444"></i> Platform</h3>
+            <div class="ad-switch-row">
+              <div><b>Maintenance Mode</b><small>Block all user access</small></div>
+              <label class="ad-switch"><input type="checkbox" id="setMaintenance"><span></span></label>
+            </div>
+            <div class="ad-switch-row">
+              <div><b>Registration Open</b><small>Allow new signups</small></div>
+              <label class="ad-switch"><input type="checkbox" id="setRegOpen"><span></span></label>
+            </div>
+            <div class="ad-switch-row">
+              <div><b>Withdraw Enabled</b><small>Allow withdraw requests</small></div>
+              <label class="ad-switch"><input type="checkbox" id="setWithOn"><span></span></label>
+            </div>
+          </div>
+          <div class="ad-card">
+            <h3 class="ad-card-title"><i class="fas fa-save" style="color:#3b82f6"></i> Save Changes</h3>
+            <p style="font-size:12px;color:#64748b;margin-bottom:12px">All settings save to Firebase and apply instantly to the user panel.</p>
+            <button onclick="saveSettings()" class="ad-btn-primary" style="width:100%"><i class="fas fa-check"></i> Save All Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div id="tab-security" class="ad-tab-content hidden-el">
+        <div class="ad-card" style="max-width:520px">
+          <h3 class="ad-card-title"><i class="fas fa-key" style="color:#ef4444"></i> Change Admin Password</h3>
+          <label class="ad-label">Current Password</label>
+          <input id="secCurr" type="password" class="ad-input">
+          <label class="ad-label">New Password</label>
+          <input id="secNew" type="password" class="ad-input">
+          <label class="ad-label">Confirm New Password</label>
+          <input id="secConf" type="password" class="ad-input">
+          <button onclick="changeAdminPass()" class="ad-btn-primary" style="width:100%;margin-top:12px">Update Password</button>
+        </div>
+      </div>
+
+    </div>
   </main>
 </div>
 
-<!-- ===== MODAL ===== -->
-<div id="modalOverlay" class="modal-overlay hidden">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modalTitle">Add Item</h3>
-      <button class="btn-icon" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+<!-- MODAL -->
+<div id="adModal" class="ad-modal hidden-el" onclick="if(event.target===this)adModalClose()">
+  <div class="ad-modal-box">
+    <div class="ad-modal-head">
+      <h3 id="adModalTitle">Modal</h3>
+      <i class="fas fa-xmark" onclick="adModalClose()"></i>
     </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="modalSaveBtn"><i class="fas fa-check"></i> Save</button>
-    </div>
+    <div id="adModalBody"></div>
   </div>
 </div>
 
-<!-- ===== CONFIRM ===== -->
-<div id="confirmOverlay" class="modal-overlay hidden">
-  <div class="modal modal-sm">
-    <div class="modal-header"><h3>Confirm Action</h3></div>
-    <div class="modal-body"><p id="confirmMessage"></p></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
-      <button class="btn btn-danger" id="confirmYesBtn"><i class="fas fa-check"></i> Confirm</button>
-    </div>
-  </div>
-</div>
-
-<div id="toastContainer" class="toast-container"></div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>

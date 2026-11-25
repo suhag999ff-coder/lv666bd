@@ -3,13 +3,13 @@
    (Copy the SAME config from your app.js)
    ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyB9CF7K77_Oe0DQD1_muVdKYmqqD4D22dc",
+  authDomain: "lv666-af324.firebaseapp.com",
+  databaseURL: "https://lv666-af324-default-rtdb.firebaseio.com",
+  projectId: "lv666-af324",
+  storageBucket: "lv666-af324.firebasestorage.app",
+  messagingSenderId: "763877978854",
+  appId: "1:763877978854:web:a2d00783111a464b7d0127"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
